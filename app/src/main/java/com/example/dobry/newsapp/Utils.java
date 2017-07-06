@@ -58,10 +58,13 @@ public class Utils {
             JSONObject baseJsonResponse = new JSONObject(newsJSON);
             Log.println(Log.INFO, LOG_TAG, newsJSON);
 
+            // Extract JSONObject from baseJesonResponse by using key: "response"
+            JSONObject response = baseJsonResponse.getJSONObject("response");
+
             // Extract the JSONArray associated with the key called "results",
             // which represents a list of newses.
-            JSONArray newsesArray = baseJsonResponse.getJSONArray("results");
-            Log.println(Log.INFO, LOG_TAG, String.valueOf(newsesArray));
+            JSONArray newsesArray = response.getJSONArray("results");
+            Log.println(Log.INFO, LOG_TAG, String.valueOf("RESULTS ARRAY: " + newsesArray));
 
             // For each news in the newsesArray, create an {@link News} object
             for (int i = 0; i < newsesArray.length(); i++) {

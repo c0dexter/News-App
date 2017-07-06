@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("https://http://content.guardianapis.com/search?q=").append(searchValue).append("&order-by=newest&order-date=published&show-section=true&show-fields=headline,thumbnail&show-references=author&show-tags=contributor&page=1&page-size=10&api-key=test");
+        sb.append("https://content.guardianapis.com/search?q=").append(searchValue).append("&order-by=newest&order-date=published&show-section=true&show-fields=headline,thumbnail&show-references=author&show-tags=contributor&page=1&page-size=10&api-key=test");
         mUrlRequestGuardianApi = sb.toString();
         return mUrlRequestGuardianApi;
     }
