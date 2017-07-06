@@ -17,8 +17,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by dobry on 04.07.17.
@@ -47,7 +45,7 @@ public class Utils {
             return null;
         }
 
-        // Create an empty ArrayList that we can start adding newses to
+        // Create an empty ArrayList that we can start adding newses tojs
         List<News> newses = new ArrayList<>();
 
         // Try to parse the JSON response string. If there's a problem with the way the JSON
@@ -60,9 +58,9 @@ public class Utils {
             JSONObject baseJsonResponse = new JSONObject(newsJSON);
             Log.println(Log.INFO, LOG_TAG, newsJSON);
 
-            // Extract the JSONArray associated with the key called "items",
+            // Extract the JSONArray associated with the key called "results",
             // which represents a list of newses.
-            JSONArray newsesArray = baseJsonResponse.getJSONArray("items");
+            JSONArray newsesArray = baseJsonResponse.getJSONArray("results");
             Log.println(Log.INFO, LOG_TAG, String.valueOf(newsesArray));
 
             // For each news in the newsesArray, create an {@link News} object
@@ -73,79 +71,63 @@ public class Utils {
                 Log.println(Log.INFO, LOG_TAG, String.valueOf(currentNews));
 
                 // For a given news, extract the JSONObject associated with the
-                // key called "volumeInfo", which represents a list of all properties
-                // for that news. + [authors] list
-                JSONObject volumeInfo = currentNews.getJSONObject("volumeInfo");
+                // key called "fields", which represents an object with THUMBNAIL IMG URL and
+                // HEADLINE of article
+                JSONObject fields = currentNews.getJSONObject("fields");
+                Log.println(Log.INFO, LOG_TAG, String.valueOf("Fields: " + fields));
 
-                // Extract the value for the key called "author"
-                String author;
+                // # Extract the value for the key called "webTitle" as Author
+                String authorArticle;
 
+                // For a given news, extract the JSONArray associated with the
+                // key called "tags", which represents a ArrayList of author, etc.
                 // Check if JSONArray exist
-                if (volumeInfo.has("authors")) {
-                    JSONArray authors = volumeInfo.getJSONArray("authors");
-                    Log.println(Log.INFO, LOG_TAG, String.valueOf(authors));
+                if (currentNews.has("tags")) {
+                    JSONArray tagsArray = currentNews.getJSONArray("tags");
+                    Log.println(Log.INFO, LOG_TAG, String.valueOf(tagsArray));
 
                     // Check JSONArray Returns true if this object has no mapping for name or if it has a mapping whose value is NULL
-                    if (!volumeInfo.isNull("authors")) {
-                        // Get 1st element
-                        author = (String) authors.get(0);
+                    if (!currentNews.isNull("tags")) {
+                        // Get 1st element - object
+                        JSONObject tagObject = (JSONObject) tagsArray.get(0); //webTitle
+                        Log.println(Log.INFO, LOG_TAG, String.valueOf("TAG Object: " + tagObject));
+                        // Get autors name by using a "webTitle" key
+                        authorArticle = tagObject.getString("webTitle");
+                        Log.println(Log.INFO, LOG_TAG, String.valueOf("Author's name: " + authorArticle));
                     } else {
                         // assign info about missing info about author
-                        author = "*** unknown author ***";
+                        authorArticle = "*** unknown author ***";
                     }
                 } else {
                     // assign info about missing info about author
-                    author = "*** missing info of authors ***";
+                    authorArticle = "*** missing info of authors ***";
                 }
 
-                // For a given news, extract the JSONObject associated with the
-                // key called "imageLinks", which represents a list of all cover
-                // images in a different size
-                JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
-                Log.println(Log.INFO, LOG_TAG, String.valueOf(imageLinks));
 
-                // For a given news, extract the JSONObject associated with the
-                // key called "saleInfo", which represents a list of region and object RetailPrice{amount, currency}
-                JSONObject saleInfo = currentNews.getJSONObject("saleInfo");
-                JSONObject retailPrice = saleInfo.getJSONObject("retailPrice");
+                // # Extract the value for the key called "webTitle"
+                String titleArticle = currentNews.getString("webTitle");
+                Log.println(Log.INFO, LOG_TAG, String.valueOf("TITLE article: " + titleArticle));
 
+                // # Extract the value for the key called "sectionName"
+                String sectionArticle = currentNews.getString("sectionName");
+                Log.println(Log.INFO, LOG_TAG, String.valueOf("SESCTION name: " + sectionArticle));
 
-                // Extract the value for the key called "title"
-                String title = volumeInfo.getString("title");
+                // # Extract String URL of specific cover for the key "thumbnail"
+                String imageArticle = fields.getString("thumbnail");
+                Log.println(Log.INFO, LOG_TAG, String.valueOf("IMAGE URL: " + imageArticle));
 
-                // Extract the value for the key called "language"
-                String language = volumeInfo.getString("language");
+                // # Extract the value for the key called "webPublicationDate"
+                String dateArticle = currentNews.getString("webPublicationDate");
+                Log.println(Log.INFO, LOG_TAG, String.valueOf("PUBLISHED Date: " + dateArticle));
 
-                // Extract String URL of specific cover
-                String coverImageUrl = imageLinks.getString("smallThumbnail");
+                // # Extract the value for the key called "webUrl"
+                String urlArticle = currentNews.getString("webUrl");
+                Log.println(Log.INFO, LOG_TAG, String.valueOf("URL Article: " + urlArticle));
 
-                // Extract the value for the key called "smallThumbnail"
-                // Using REGEX and StringBuilder
-                StringBuilder stringBuilder = new StringBuilder();
-
-                Pattern p = Pattern.compile("id=(.*?)&");
-                Matcher m = p.matcher(coverImageUrl);
-                if (m.matches()) {
-                    String id = m.group(1);
-                    coverImageUrl = String.valueOf(stringBuilder.append("https://books.google.com/books/content/images/frontcover/").append(id).append("?fife=w300"));
-                } else {
-                    Log.i(LOG_TAG, "Issue with cover");
-                }
-
-                // Extract the value for the key called "amount"
-                double amount = retailPrice.getDouble("amount");
-
-                // Extract the value for the key called "currencyCode"
-                String currency = retailPrice.getString("currencyCode");
-
-
-                // Extract the value for the key called "buyLink"
-                String buyLink = (String) saleInfo.get("buyLink");
 
                 // Create a new {@link News} object with the title, author, coverImageUrl, price, currency and language
                 // and url from the JSON response.
-                // TODO: zmienić mapowanie, dodać poprawną konstrukcję obiektu
-                News newsItem = new News(title, POOOOOOOOOOOOOPRAWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW TOOOOOOOOOO);
+                News newsItem = new News(titleArticle, sectionArticle, authorArticle, imageArticle, dateArticle, urlArticle);
 
                 // Add the new {@link News} to the list of newsesList.
                 newses.add(newsItem);

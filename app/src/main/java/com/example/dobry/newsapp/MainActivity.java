@@ -30,16 +30,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     /**
-     * Constant value for the book loader ID. We can choose any integer.
+     * Constant value for the news loader ID. We can choose any integer.
      * This really only comes into play if you're using multiple loaders.
      */
-    private static final int BOOK_LOADER_ID = 1;
+    private static final int NEWS_LOADER_ID = 1;
     ListView newsListView;
+
     boolean isConnected;
     /**
-     * URL for books data from the Google Books API
+     * URL for newses data from the Guardian API
      */
-    private String mUrlRequestGoogleBooks = "";
+    private String mUrlRequestGuardianApi = "";
     /**
      * TextView that is displayed when the list is empty
      */
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
      */
     private View circleProgressBar;
     /**
-     * Adapter for the list of books
+     * Adapter for the list of newses
      */
     private NewsAdapter mAdapter;
     /**
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // Find a reference to the {@link ListView} in the layout
         newsListView = (ListView) findViewById(R.id.list);
 
-        // Create a new adapter that takes an empty list of books as input
+        // Create a new adapter that takes an empty list of newses as input
         mAdapter = new NewsAdapter(this, new ArrayList<News>());
 
         // Set the adapter on the {@link ListView}
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mSearchViewField = (SearchView) findViewById(R.id.search_view_field);
         mSearchViewField.onActionViewExpanded();
         mSearchViewField.setIconified(true);
-        mSearchViewField.setQueryHint("Enter a book title");
+        mSearchViewField.setQueryHint("Enter a phrase");
 
 
         if (isConnected) {
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             LoaderManager loaderManager = getLoaderManager();
 
             // Initialize the loader.
-            loaderManager.initLoader(BOOK_LOADER_ID, null, this);
+            loaderManager.initLoader(NEWS_LOADER_ID, null, this);
         } else {
             // Progress bar mapping
             Log.i(LOG_TAG, "INTERNET connection status: " + String.valueOf(isConnected) + ". Sorry dude, no internet - no data :(");
@@ -120,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
         // Set an item click listener on the Search Button, which sends a request to
-        // Google Books API based on value from Search View
+        // Guardian API based on value from Search View
         mSearchButton.setOnClickListener(new View.OnClickListener()
 
         {
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     restartLoader();
                     Log.i(LOG_TAG, "Search value: " + mSearchViewField.getQuery().toString());
                 } else {
-                    // Clear the adapter of previous book data
+                    // Clear the adapter of previous newses data
                     mAdapter.clear();
                     // Set mEmptyStateTextView visible
                     mEmptyStateTextView.setVisibility(View.VISIBLE);
@@ -149,20 +150,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         });
 
         // Set an item click listener on the ListView, which sends an intent to a web browser
-        // to open a website with more information about the selected book.
+        // to open a website with more information about the selected news.
         newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
 
         {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                // Find the current book that was clicked on
+                // Find the current news that was clicked on
                 News currentNews = mAdapter.getItem(position);
 
-                // Convert the String URL into a URI object (to pass into the Intent constructor)
-                //assert currentBook != null;
-                Uri newsUri = Uri.parse(currentNews.getNewsUrl());
+                // Check value of newsUrl and convert the String URL into a URI object (to pass into the Intent constructor)
+                Uri newsUri = Uri.parse(currentNews != null ? currentNews.getNewsUrl() : null);
+                Log.i(LOG_TAG, "News URI value: " + newsUri);
 
-                // Create a new intent to view buy the book URI
+                // Create a new intent to view buy the news URI
                 Intent websiteIntent = new Intent(Intent.ACTION_VIEW, newsUri);
 
                 // Send the intent to launch a new activity
@@ -185,9 +186,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("https://www.googleapis.com/books/v1/volumes?q=").append(searchValue).append("&filter=paid-ebooks&maxResults=40");
-        mUrlRequestGoogleBooks = sb.toString();
-        return mUrlRequestGoogleBooks;
+        sb.append("https://http://content.guardianapis.com/search?q=").append(searchValue).append("&order-by=newest&order-date=published&show-section=true&show-fields=headline,thumbnail&show-references=author&show-tags=contributor&page=1&page-size=10&api-key=test");
+        mUrlRequestGuardianApi = sb.toString();
+        return mUrlRequestGuardianApi;
     }
 
     @Override
@@ -195,11 +196,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Log.i("There is no instance", ": Created new one loader at the beginning!");
         // Create a new loader for the given URL
         updateQueryUrl(mSearchViewField.getQuery().toString());
-        return new NewsLoader(this, mUrlRequestGoogleBooks);
+        return new NewsLoader(this, mUrlRequestGuardianApi);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<News>> loader, List<News> books) {
+    public void onLoadFinished(Loader<List<News>> loader, List<News> newses) {
 
         // Progress bar mapping
         View circleProgressBar = findViewById(R.id.loading_spinner);
@@ -207,15 +208,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         // Set empty state text to display "No newses found."
         mEmptyStateTextView.setText(R.string.no_newses);
-        Log.i(LOG_TAG, ": Books has been moved to adapter's data set. This will trigger the ListView to update!");
+        Log.i(LOG_TAG, ": Newses has been moved to adapter's data set. This will trigger the ListView to update!");
 
-        // Clear the adapter of previous book data
+        // Clear the adapter of previous news data
         mAdapter.clear();
 
-        // If there is a valid list of {@link Book}s, then add them to the adapter's
+        // If there is a valid list of {@link News}s, then add them to the adapter's
         // data set. This will trigger the ListView to update.
-        if (books != null && !books.isEmpty()) {
-            mAdapter.addAll(books);
+        if (newses != null && !newses.isEmpty()) {
+            mAdapter.addAll(newses);
         }
 
     }
@@ -230,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void restartLoader() {
         mEmptyStateTextView.setVisibility(GONE);
         circleProgressBar.setVisibility(View.VISIBLE);
-        getLoaderManager().restartLoader(BOOK_LOADER_ID, null, MainActivity.this);
+        getLoaderManager().restartLoader(NEWS_LOADER_ID, null, MainActivity.this);
     }
 
     public void checkConnection(ConnectivityManager connectivityManager) {
