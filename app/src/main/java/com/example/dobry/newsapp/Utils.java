@@ -15,7 +15,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,7 +56,6 @@ public class Utils {
         // Catch the exception so the app doesn't crash, and print the error message to the logs.
         try {
 
-            //TODO: zrobić poprawne parsowanie
             // Create a JSONObject from the JSON response string
             JSONObject baseJsonResponse = new JSONObject(newsJSON);
             Log.println(Log.INFO, LOG_TAG, newsJSON);
@@ -89,12 +91,14 @@ public class Utils {
                     JSONArray tagsArray = currentNews.getJSONArray("tags");
                     Log.println(Log.INFO, LOG_TAG, String.valueOf(tagsArray));
 
-                    // Check JSONArray Returns true if this object has no mapping for name or if it has a mapping whose value is NULL
-                    if (!currentNews.isNull("tags")) {
+                    // Check JSONArray Returns true if this object has no mapping for name or
+                    // if it has a mapping whose value is NULL and if tagsArray contains
+                    // at list one element
+                    if (!currentNews.isNull("tags") && tagsArray.length() > 0) {
                         // Get 1st element - object
-                        JSONObject tagObject = (JSONObject) tagsArray.get(0); //webTitle
+                        JSONObject tagObject = (JSONObject) tagsArray.get(0);
                         Log.println(Log.INFO, LOG_TAG, String.valueOf("TAG Object: " + tagObject));
-                        // Get autors name by using a "webTitle" key
+                        // Get authors name by using a "webTitle" key
                         authorArticle = tagObject.getString("webTitle");
                         Log.println(Log.INFO, LOG_TAG, String.valueOf("Author's name: " + authorArticle));
                     } else {
@@ -103,7 +107,7 @@ public class Utils {
                     }
                 } else {
                     // assign info about missing info about author
-                    authorArticle = "*** missing info of authors ***";
+                    authorArticle = "*** missing info of author ***";
                 }
 
 
@@ -112,21 +116,29 @@ public class Utils {
                 Log.println(Log.INFO, LOG_TAG, String.valueOf("TITLE article: " + titleArticle));
 
                 // # Extract the value for the key called "sectionName"
-                String sectionArticle = currentNews.getString("sectionName");
+                String sectionArticle = "#" + currentNews.getString("sectionName");
                 Log.println(Log.INFO, LOG_TAG, String.valueOf("SESCTION name: " + sectionArticle));
 
                 // # Extract String URL of specific cover for the key "thumbnail"
-                String imageArticle = fields.getString("thumbnail");
-                Log.println(Log.INFO, LOG_TAG, String.valueOf("IMAGE URL: " + imageArticle));
-
+                String imageArticle;
+                if (fields.has("thumbnail")) {
+                    imageArticle = fields.getString("thumbnail");
+                    Log.println(Log.INFO, LOG_TAG, String.valueOf("IMAGE URL: " + imageArticle));
+                } else {
+                    continue; // back to begin of this loop without adding an object without thumbnail img to List
+                }
                 // # Extract the value for the key called "webPublicationDate"
                 String dateArticle = currentNews.getString("webPublicationDate");
+
+                // Switch format date
+                Date date = new SimpleDateFormat("yyyy-MM-dd").parse(dateArticle);
+                String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
+                dateArticle = formattedDate;
                 Log.println(Log.INFO, LOG_TAG, String.valueOf("PUBLISHED Date: " + dateArticle));
 
                 // # Extract the value for the key called "webUrl"
                 String urlArticle = currentNews.getString("webUrl");
                 Log.println(Log.INFO, LOG_TAG, String.valueOf("URL Article: " + urlArticle));
-
 
                 // Create a new {@link News} object with the title, author, coverImageUrl, price, currency and language
                 // and url from the JSON response.
@@ -142,6 +154,8 @@ public class Utils {
             // catch the exception here, so the app doesn't crash. Print a log message
             // with the message from the exception.
             Log.e(LOG_TAG, "Problem parsing the news JSON results", e);
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
         // Return the list of newses (newsesList)

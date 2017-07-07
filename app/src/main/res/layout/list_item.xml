@@ -1,19 +1,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_height="wrap_content"
+    android:maxHeight="140dp"
     android:orientation="horizontal"
-    android:paddingEnd="@dimen/margin_16_dp"
-    android:paddingLeft="@dimen/margin_16_dp"
-    android:paddingRight="@dimen/margin_16_dp"
-    android:paddingStart="@dimen/margin_16_dp">
+    android:paddingBottom="@dimen/margin_8_dp"
+    android:paddingEnd="@dimen/margin_8_dp"
+    android:paddingLeft="@dimen/margin_8_dp"
+    android:paddingRight="@dimen/margin_8_dp"
+    android:paddingStart="@dimen/margin_8_dp">
 
     <ImageView
         android:id="@+id/thumbnail_image"
-        android:layout_width="@dimen/image_view_width"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:scaleType="centerInside"
+        android:layout_weight="2"
+        android:scaleType="centerCrop"
         tools:src="@mipmap/ic_launcher" />
 
     <LinearLayout
@@ -22,37 +25,47 @@
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="@dimen/margin_16_dp"
         android:layout_marginStart="@dimen/margin_16_dp"
-        android:layout_weight="1"
+        android:layout_weight="5"
         android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/section_type"
+                android:id="@+id/author_news"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:fontFamily="sans-serif-medium"
-                android:maxLines="1"
+                android:layout_gravity="start"
                 android:textAllCaps="true"
-                android:textColor="@color/textColorAuthor"
-                android:textSize="@dimen/author_text_size"
-                tools:text="#society" />
-
+                android:textColor="@color/textColorCountryCode"
+                android:textSize="@dimen/date_text_size"
+                tools:text="John Doe" />
             <TextView
                 android:id="@+id/publicationDate"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
                 android:layout_marginLeft="@dimen/margin_8_dp"
+                android:gravity="end"
                 android:textColor="@color/textColorPrice"
                 android:textSize="@dimen/date_text_size"
                 android:textStyle="italic"
                 tools:text="2017-07-05" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/section_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:textAllCaps="true"
+            android:textColor="@color/textColorAuthor"
+            android:textSize="@dimen/author_text_size"
+            tools:text="#society" />
+
 
         <TextView
             android:id="@+id/news_title"
@@ -67,16 +80,5 @@
             tools:text="EU gives Poland two months to scrap changes to its highest court" />
 
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/author_news"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|end"
-        android:textAllCaps="true"
-        android:textColor="@color/textColorCountryCode"
-        android:textSize="@dimen/date_text_size"
-        tools:text="John Doe" />
-
 
 </LinearLayout>

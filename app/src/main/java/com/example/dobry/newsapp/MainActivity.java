@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mSearchViewField = (SearchView) findViewById(R.id.search_view_field);
         mSearchViewField.onActionViewExpanded();
         mSearchViewField.setIconified(true);
-        mSearchViewField.setQueryHint("Enter a phrase");
+        mSearchViewField.setQueryHint(getString(R.string.hint_search));
 
 
         if (isConnected) {
@@ -186,7 +187,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("https://content.guardianapis.com/search?q=").append(searchValue).append("&order-by=newest&order-date=published&show-section=true&show-fields=headline,thumbnail&show-references=author&show-tags=contributor&page=1&page-size=10&api-key=test");
+
+        sb.append("https://content.guardianapis.com/search?q=").append(searchValue).append("&order-date=published&show-section=true&show-fields=headline,thumbnail&show-references=author&show-tags=contributor&page=10&page-size=20&api-key=test");
         mUrlRequestGuardianApi = sb.toString();
         return mUrlRequestGuardianApi;
     }
@@ -195,7 +197,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public Loader<List<News>> onCreateLoader(int i, Bundle bundle) {
         Log.i("There is no instance", ": Created new one loader at the beginning!");
         // Create a new loader for the given URL
-        updateQueryUrl(mSearchViewField.getQuery().toString());
+        if (mSearchViewField.getQuery().length() > 0) {
+            // If empty, use default query
+            updateQueryUrl(mSearchViewField.getQuery().toString());
+        } else {
+            Toast.makeText(this, "Empty search - default query will be listed", Toast.LENGTH_SHORT).show();
+            mUrlRequestGuardianApi = "http://content.guardianapis.com/search?q=android&order-by=newest&order-date=published&show-section=true&show-fields=headline,thumbnail&show-references=author&show-tags=contributor&page=1&page-size=20&api-key=test";
+        }
         return new NewsLoader(this, mUrlRequestGuardianApi);
     }
 
