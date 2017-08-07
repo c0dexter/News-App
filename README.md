@@ -1,7 +1,14 @@
 News App - Project Specification
 =====================================
 
+[![N|Solid](http://i.imgur.com/NFM4POKm.png)](http://i.imgur.com/NFM4POKm.png) [![N|Solid](http://i.imgur.com/xxYdsthm.png)](http://i.imgur.com/xxYdsthm.png) [![N|Solid](http://i.imgur.com/PoVAS2Wm.png)](http://i.imgur.com/PoVAS2Wm.png) [![N|Solid](http://i.imgur.com/H9PZJ4am.png)](http://i.imgur.com/H9PZJ4am.png)
 
+----
+
+# YouTube video-clips with short presentations #
+
+### Presentation of application ###
+[![Watch the video](http://i.imgur.com/6bOvifHl.png)](https://youtu.be/Ks8cjbaIp6Y)
 
 #Layout
 ------------
